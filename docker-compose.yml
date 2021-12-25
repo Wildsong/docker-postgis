@@ -1,0 +1,65 @@
+version: '3.7'
+
+volumes:
+  postgis_data:
+    name: postgis_data
+
+  postgis_pgadmin:
+    name: pgadmin
+
+networks:
+  # This is a network we share with our reverse proxy
+  proxy_net:
+    name: proxy_net
+    # Won't be created or destroyed with docker-compose up|down
+    external: true
+
+  # This network is only used for database access
+  postgis_net:
+    name: postgis_net
+
+services:
+  db:
+    image: wildsong/postgis
+    build:
+      context: .
+      dockerfile: Dockerfile.postgis
+    env_file: .env
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: ${DB_ADMIN_PASSWORD}
+      PGHOST: `hostname`
+    networks:
+      postgis_net:
+        aliases:
+          - postgis
+#    volumes:
+#      - postgis_data:
+
+  pgadmin:
+    env_file: .env
+    # dpage/pgadmin4 is the official release
+    image: dpage/pgadmin4:latest
+# Use this when running behind reverse proxy      
+#    expose:
+#      - "80"
+# Only open this up for test, "expose" + proxy is the normal setup.
+    ports:
+      - "8999:80"
+    volumes:
+      # Session data, user files, config files, config database go here.
+      - postgis_pgadmin:/var/lib/pgadmin
+    environment:
+      VIRTUAL_HOST: ${PGADMIN_VIRTUAL_HOST}
+      VIRTUAL_PORT: 80
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_USER}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      # Added SCRIPT_NAME to solve this problem: https://stackoverflow.com/questions/46381668/pgadmin4-wont-work-in-specific-location-behind-nginx
+#      SCRIPT_NAME: /pgadmin4
+      NETWORK_ACCESS: internal
+      LETSENCRYPT_HOST: ${PGADMIN_VIRTUAL_HOST}
+      LETSENCRYPT_MAIL: ${MY_EMAIL}
+    networks:
+      - proxy_net
+      - postgis_net
+

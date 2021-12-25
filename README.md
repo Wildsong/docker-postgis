@@ -1,6 +1,6 @@
 wildsong/docker-postgis
 
-I am excited to try out PostGIS 3, which is still in beta.  I am not
+I am excited to try out PostGIS 3,  I am not
 excited enough to go through the complete build process (again), and I
 found that Debian Experimental has a package with postgresql 11 +
 postgis 3 in it so this docker builds on that.

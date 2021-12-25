@@ -11,10 +11,10 @@ MAINTAINER Brian Wilson <brian@wildsong.biz>
 # ..so most of the work is done already
 # That just leaves download, build, install for me
 
-# released 18-Oct-2019 or so
-ENV POSTGIS_VERSION 3.0.0
+# released 12-15-2021 or so
+ENV POSTGIS_VERSION 3.2.0
 
-ARG BUILD_THREADS=8
+ARG BUILD_THREADS=4
 
 USER root
 RUN mkdir /home/postgres && chown postgres /home/postgres
